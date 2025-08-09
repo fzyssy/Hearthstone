@@ -1,0 +1,61 @@
+/* 自定义样式工具类 */
+@layer utilities {
+    .text-shadow {
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+    
+    .card-hover {
+        transition: all 0.2s ease;
+    }
+    
+    .card-hover:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* 场上随从卡牌特殊效果 */
+    .battlefield-minion {
+        min-height: 120px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        transition: all 0.3s ease;
+    }
+    
+    .battlefield-minion:hover {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    }
+    
+    .stealth-effect {
+        animation: stealthPulse 2s ease-in-out infinite;
+        border: 1px solid rgba(128, 0, 128, 0.5) !important;
+    }
+    
+    /* 回合高亮效果 */
+    .player-turn-highlight {
+        border: 2px solid #22c55e !important;
+        box-shadow: 0 0 10px rgba(34, 197, 94, 0.3) !important;
+    }
+    
+    .enemy-turn-highlight {
+        border: 2px solid #ef4444 !important;
+        box-shadow: 0 0 10px rgba(239, 68, 68, 0.3) !important;
+    }
+    
+    /* 可操作元素的脉冲效果 */
+    .actionable-pulse {
+        animation: actionablePulse 1.5s ease-in-out infinite;
+    }
+}
+
+/* 动画定义 */
+@keyframes actionablePulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.02);
+        opacity: 0.9;
+    }
+}
+
