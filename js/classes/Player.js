@@ -80,6 +80,12 @@ class Player {
             let targetDied = target.takeDamage(this.heroAttack);
             let heroDied = this.takeDamage(target.attack);
             
+            // 被攻击随从的吸血判定：如果被攻击的随从有吸血且造成了反伤，随从的控制者回血
+            if (target.lifesteal && target.attack > 0) {
+                this.enemy.heal(target.attack);
+                window._game && window._game.logMessage(`${target.name}的吸血效果从反伤中为${this.enemy.name}恢复了${target.attack}点生命值`);
+            }
+            
             // 注意：剧毒效果不能对英雄生效，只能对随从生效
             // 所以这里不需要检查目标随从的剧毒效果
             
@@ -258,11 +264,11 @@ class Player {
                 window._game && window._game.logMessage(`${attacker.name}的圣盾抵挡了伤害，圣盾被移除`);
             }
             
-            // 反伤吸血判定：如果攻击者有吸血且受到了反伤，攻击者的控制者回血
+            // 防守方吸血判定：如果防守方有吸血且造成了反伤，防守方的控制者回血
             let counterDamage = target.attack;
-            if (attacker.lifesteal && counterDamage > 0 && !attackerHadDivineShield) {
-                this.heal(counterDamage);
-                window._game && window._game.logMessage(`${attacker.name}的吸血效果从反伤中为${this.name}恢复了${counterDamage}点生命值`);
+            if (target.lifesteal && counterDamage > 0 && !attackerHadDivineShield) {
+                this.enemy.heal(counterDamage);
+                window._game && window._game.logMessage(`${target.name}的吸血效果从反伤中为${this.enemy.name}恢复了${counterDamage}点生命值`);
             }
             
             // 目标的剧毒判定：如果目标有剧毒且造成了伤害，攻击者立即死亡

@@ -381,11 +381,12 @@ class HearthstoneGame {
         
         this.initializeDecks();
         
+        // 先手抽FIRST_PLAYER_CARDS张，后手抽FIRST_PLAYER_CARDS+1张
         for (let i = 0; i < GAME_CONSTANTS.FIRST_PLAYER_CARDS; i++) {
             this.player.drawCard();
             this.enemy.drawCard();
         }
-        this.player.drawCard();
+        this.enemy.drawCard(); // 后手多一张
         
         this.player.maxManaCrystals = 1;
         this.player.manaCrystals = this.player.maxManaCrystals;
