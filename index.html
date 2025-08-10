@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>炉石传说</title>
+    <title>云畔网*炉石传说</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
@@ -77,7 +77,7 @@
             </div>
         </aside>
 
-    <section class="flex-[2.2] border-l border-white/20 pl-5">
+        <section class="flex-[2.2] border-l border-white/20 pl-5">
             <!-- 对手手牌区 -->
             <div id="enemy-hand" class="flex flex-wrap gap-2 min-h-[90px] justify-center mb-2">
                 <div class="text-center text-gray-400 w-full py-3">无手牌</div>
@@ -86,18 +86,22 @@
             <!-- 对手英雄区（只保留头像、技能按钮、血量、护甲） -->
             <div class="enemy-hero-area flex items-center mb-2 gap-3 justify-center">
                 <div class="flex flex-col items-center">
-                    <div class="enemy-hero-avatar bg-enemy rounded-full border-2 border-secondary w-20 h-20 flex items-center justify-center shadow-lg relative mx-auto">
+                    <div
+                        class="enemy-hero-avatar bg-enemy rounded-full border-2 border-secondary w-20 h-20 flex items-center justify-center shadow-lg relative mx-auto">
                         <i class="fa fa-user-secret text-4xl"></i>
                     </div>
                 </div>
                 <div class="flex flex-row items-center gap-3 ml-2">
-                    <button id="enemy-hero-power" class="bg-green-700 hover:bg-green-800 text-white font-bold w-10 h-10 rounded-full shadow flex items-center justify-center text-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled title="猎人技能：2法力，对方英雄2伤害">
+                    <button id="enemy-hero-power"
+                        class="bg-green-700 hover:bg-green-800 text-white font-bold w-10 h-10 rounded-full shadow flex items-center justify-center text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled title="猎人技能：2法力，对方英雄2伤害">
                         <i class="fa fa-crosshairs"></i>
                     </button>
                     <div class="flex items-center gap-2 text-lg font-bold">
                         <i class="fa fa-heart text-red-500 mr-1"></i>
                         <span id="enemy-health">30</span>
-                        <span id="enemy-armor" class="ml-2 flex items-center gap-1 text-base"><i class="fa fa-shield text-blue-400"></i><span>0</span></span>
+                        <span id="enemy-armor" class="ml-2 flex items-center gap-1 text-base"><i
+                                class="fa fa-shield text-blue-400"></i><span>0</span></span>
                     </div>
                 </div>
             </div>
@@ -109,7 +113,9 @@
 
             <!-- 中间分割线 -->
             <div class="w-full flex items-center justify-center my-2">
-                <div class="h-1 w-2/3 bg-gradient-to-r from-transparent via-secondary to-transparent rounded-full opacity-60"></div>
+                <div
+                    class="h-1 w-2/3 bg-gradient-to-r from-transparent via-secondary to-transparent rounded-full opacity-60">
+                </div>
             </div>
 
             <!-- 回合结束按钮 -->
@@ -123,18 +129,22 @@
             <!-- 玩家英雄区（只保留头像、技能按钮、血量、护甲） -->
             <div class="player-hero-area flex items-center mt-4 gap-3 justify-center">
                 <div class="flex flex-col items-center">
-                    <div class="player-hero-avatar bg-player rounded-full border-2 border-secondary w-20 h-20 flex items-center justify-center shadow-lg relative mx-auto">
+                    <div
+                        class="player-hero-avatar bg-player rounded-full border-2 border-secondary w-20 h-20 flex items-center justify-center shadow-lg relative mx-auto">
                         <i class="fa fa-user text-4xl"></i>
                     </div>
                 </div>
                 <div class="flex flex-row items-center gap-3 ml-2">
-                    <button id="player-hero-power" class="bg-blue-600 hover:bg-blue-700 text-white font-bold w-10 h-10 rounded-full shadow flex items-center justify-center text-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled title="法师技能：2法力，指定目标1伤害">
+                    <button id="player-hero-power"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-bold w-10 h-10 rounded-full shadow flex items-center justify-center text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled title="法师技能：2法力，指定目标1伤害">
                         <i class="fa fa-magic"></i>
                     </button>
                     <div class="flex items-center gap-2 text-lg font-bold">
                         <i class="fa fa-heart text-red-500 mr-1"></i>
                         <span id="player-health">30</span>
-                        <span id="player-armor" class="ml-2 flex items-center gap-1 text-base"><i class="fa fa-shield text-blue-400"></i><span>0</span></span>
+                        <span id="player-armor" class="ml-2 flex items-center gap-1 text-base"><i
+                                class="fa fa-shield text-blue-400"></i><span>0</span></span>
                     </div>
                 </div>
             </div>
@@ -146,7 +156,7 @@
         </section>
 
         <!-- 右侧信息栏：上下对齐，玩家信息靠下 -->
-    <aside class="info-panel border-l border-white/20 pl-3 flex flex-col justify-between" style="height: 100%;">
+        <aside class="info-panel border-l border-white/20 pl-3 flex flex-col justify-between" style="height: 100%;">
             <!-- 顶部对手信息 -->
             <div class="flex flex-col gap-2 mt-8">
                 <div class="flex items-center gap-2 text-base font-bold">
@@ -195,7 +205,7 @@
     <div id="game-mode-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
         <div class="bg-primary border-2 border-secondary rounded-xl p-6 max-w-md w-full mx-2 text-center">
             <h3 class="text-3xl font-bold mb-4 text-secondary">
-                <i class="fa fa-fire mr-2"></i>炉石传说
+                <i class="fa fa-fire mr-2"></i>云畔网*炉石传说
             </h3>
             <p class="text-lg mb-6 text-gray-300">选择游戏模式开始战斗！</p>
             <div class="space-y-4">
@@ -245,7 +255,7 @@
             <div class="space-y-2 text-gray-200 text-sm">
                 <div>
                     <h4 class="text-xl font-semibold text-secondary mb-2">基本规则</h4>
-                    <p>这是一个简化版的炉石传说游戏，双方玩家轮流回合，使对方生命值降为0获胜。</p>
+                    <p>这是一款【云畔网】自制炉石传说同人游戏，双方玩家轮流回合，使对方生命值降为0获胜。</p>
                 </div>
                 <div>
                     <h4 class="text-xl font-semibold text-secondary mb-2">操作方法</h4>
