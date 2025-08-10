@@ -5,7 +5,7 @@ Object.assign(HearthstoneGame.prototype, {
     // 随从区域和手牌UI更新
     updateMinionBoard(elementId, minions, isPlayer) {
         const boardElement = document.getElementById(elementId);
-        
+
         // 清空现有内容，但保留死亡动画中的元素
         const existingElements = Array.from(boardElement.children);
         existingElements.forEach(el => {
@@ -13,7 +13,7 @@ Object.assign(HearthstoneGame.prototype, {
                 boardElement.removeChild(el);
             }
         });
-        
+
         if (minions.length === 0) {
             const emptyMessage = document.createElement('div');
             emptyMessage.className = 'text-center text-gray-400 w-full py-4';
@@ -21,24 +21,24 @@ Object.assign(HearthstoneGame.prototype, {
             boardElement.appendChild(emptyMessage);
             return;
         }
-        
+
         minions.forEach((minion, index) => {
             const minionElement = document.createElement('div');
             let className = `bg-card rounded-lg p-3 w-28 flex flex-col items-center justify-between shadow-lg border border-gray-700 relative card-hover battlefield-minion animate-play`;
-            
+
             // 为潜行随从添加特效
             if (minion.stealth) {
                 className += ' stealth-effect';
             }
-            
+
             minionElement.className = className;
             minionElement.dataset.index = index;
             minionElement.dataset.id = minion.id;
-            
+
             const specialEffects = GameUtils.getEffectsText(minion, true);
             const attackedMark = minion.hasAttacked ?
                 '<div class="absolute top-1 right-1 text-gray-500"><i class="fa fa-lock"></i></div>' : '';
-            
+
             minionElement.innerHTML = `
                 ${attackedMark}
                 <div class="font-bold text-center text-base mb-2">${minion.name}</div>
@@ -48,10 +48,11 @@ Object.assign(HearthstoneGame.prototype, {
                     <span class="bg-green-800/70 px-2 rounded text-base font-semibold">${minion.health}</span>
                 </div>
             `;
-            
+
             // 只有当前回合的玩家的随从才有高亮和点击效果，且不在法术选择状态
-            if (((isPlayer && this.currentPlayer === this.player) || (!isPlayer && this.currentPlayer === this.enemy)) && !this.selectedSpell) {
-                // 可以攻击的随从添加高亮边框
+            // AI模式下禁止操作AI方
+            const isAITurn = this.gameMode === 'vs-ai' && this.currentPlayer === this.enemy;
+            if (!isAITurn && ((isPlayer && this.currentPlayer === this.player) || (!isPlayer && this.currentPlayer === this.enemy)) && !this.selectedSpell) {
                 if (!minion.hasAttacked && minion.attack > 0) {
                     className += ' ring-2 ring-green-400';
                 }
@@ -64,23 +65,41 @@ Object.assign(HearthstoneGame.prototype, {
     updateHand(elementId, hand, isEnemy = false) {
         const handElement = document.getElementById(elementId);
         handElement.innerHTML = '';
-        
+
         if (hand.length === 0) {
             handElement.innerHTML = `<div class="text-center text-gray-400 w-full py-6">${isEnemy ? '对手暂无手牌' : '没有手牌'}</div>`;
             return;
         }
-        
+
         hand.forEach((card, index) => {
             const cardElement = document.createElement('div');
+            
+            // 如果是AI对手的手牌，显示卡背
+            if (isEnemy && this.gameMode === 'vs-ai') {
+                cardElement.className = `bg-gradient-to-br from-blue-900 to-purple-900 rounded-lg p-2 w-24 flex flex-col items-center justify-center shadow-lg border border-gray-600 relative opacity-80`;
+                cardElement.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full">
+                        <i class="fa fa-shield text-4xl text-blue-300 mb-2"></i>
+                        <div class="text-xs text-blue-200 text-center">炉石传说</div>
+                        <div class="text-xs text-purple-300 text-center mt-1">卡牌背面</div>
+                    </div>
+                `;
+                handElement.appendChild(cardElement);
+                return;
+            }
+            
+            // AI模式下禁止操作AI方
+            const isAITurn = this.gameMode === 'vs-ai' && this.currentPlayer === this.enemy;
             const currentPlayerCanPlay = (isEnemy && this.currentPlayer === this.enemy) || (!isEnemy && this.currentPlayer === this.player);
             const canPlay = isEnemy ? (card.cost <= this.enemy.manaCrystals) : (card.cost <= this.player.manaCrystals);
-            const shouldHighlight = currentPlayerCanPlay && canPlay;
+            // 禁止AI回合手动操作AI方
+            const shouldHighlight = !isAITurn && currentPlayerCanPlay && canPlay;
             const opacity = shouldHighlight ? 'opacity-100' : 'opacity-50';
-            
+
             if (card instanceof Minion) {
                 cardElement.className = `bg-card rounded-lg p-2 w-24 flex flex-col items-center justify-between shadow-lg border ${shouldHighlight ? 'border-secondary ring-2 ring-secondary' : 'border-gray-700'} relative card-hover ${opacity} ${!currentPlayerCanPlay ? 'opacity-60' : ''}`;
                 cardElement.dataset.index = index;
-                
+
                 const specialEffects = GameUtils.getEffectsText(card, true);
                 cardElement.innerHTML = `
                     <div class="absolute top-1 right-1 bg-secondary/80 text-primary rounded-full w-5 h-5 flex items-center justify-center text-sm font-bold">
@@ -121,7 +140,7 @@ Object.assign(HearthstoneGame.prototype, {
                     <div class="text-xs text-purple-200 text-center mt-2 leading-tight">${card.description}</div>
                 `;
             }
-            
+
             // 只有当前回合的玩家且可以使用的卡牌才能点击
             if (shouldHighlight) {
                 cardElement.addEventListener('click', () => this.playPlayerCard(index, isEnemy));
@@ -136,7 +155,7 @@ Object.assign(HearthstoneGame.prototype, {
         if (this.selectedSpell) {
             return;
         }
-        
+
         if (minion.hasAttacked) {
             this.logMessage(`${minion.name}本回合已经攻击过了`);
             return;
@@ -145,10 +164,10 @@ Object.assign(HearthstoneGame.prototype, {
             this.logMessage(`${minion.name}攻击力为0，无法进行攻击`);
             return;
         }
-        
+
         this.clearSelection();
         this.selectedMinion = { index, minion };
-        
+
         const minionElements = document.querySelectorAll(
             this.currentPlayer === this.player ? '#player-minions > div' : '#enemy-minions > div'
         );
@@ -163,12 +182,12 @@ Object.assign(HearthstoneGame.prototype, {
         const enemyMinionElements = document.querySelectorAll(
             attackerIsPlayer ? '#enemy-minions > div' : '#player-minions > div'
         );
-        
+
         // 过滤出可攻击的随从（不包括潜行随从）
         const attackableMinions = enemyBoard.filter(m => !m.stealth);
         const tauntMinions = attackableMinions.filter(m => m.taunt);
         const canAttackHero = tauntMinions.length === 0;
-        
+
         if (enemyBoard.length > 0) {
             enemyMinionElements.forEach((el, index) => {
                 const minion = enemyBoard[index];
@@ -180,7 +199,7 @@ Object.assign(HearthstoneGame.prototype, {
                 }
             });
         }
-        
+
         if (canAttackHero) {
             // 检查当前选中随从是否为rush且为出场回合，若是则不高亮也不绑定点击
             let selectedMinion = this.selectedMinion && this.selectedMinion.minion;
@@ -189,7 +208,7 @@ Object.assign(HearthstoneGame.prototype, {
                 // 突袭随从出场回合不能攻击英雄，直接返回，不高亮也不绑定
                 return;
             }
-            
+
             const enemyHeroAvatar = document.querySelector(
                 attackerIsPlayer ? '.enemy-hero-avatar' : '.player-hero-avatar'
             );
@@ -203,7 +222,7 @@ Object.assign(HearthstoneGame.prototype, {
 
     attackTarget(type, index) {
         if (!this.selectedMinion) return;
-        
+
         const attackerIsPlayer = this.currentPlayer === this.player;
         let target;
         if (type === 'minion') {
@@ -217,7 +236,7 @@ Object.assign(HearthstoneGame.prototype, {
             this.selectedMinion.index,
             target
         );
-        
+
         if (!attackResult.success) {
             // 攻击无效，显示错误信息并清除选择
             this.logMessage(attackResult.reason || "攻击无效");
@@ -229,7 +248,7 @@ Object.assign(HearthstoneGame.prototype, {
         const attackerBoard = document.querySelector(attackerIsPlayer ? '#player-minions' : '#enemy-minions');
         const attackerElement = attackerBoard.children[this.selectedMinion.index];
         let targetElement;
-        
+
         if (type === 'minion') {
             const targetBoard = document.querySelector(attackerIsPlayer ? '#enemy-minions' : '#player-minions');
             targetElement = targetBoard.children[index];
@@ -275,7 +294,7 @@ Object.assign(HearthstoneGame.prototype, {
                 this.updateGameUI();
                 needsUIUpdate = false;
             }
-            
+
             if (attackResult.attackerDied) {
                 this.selectedMinion = null;
             }
@@ -288,7 +307,7 @@ Object.assign(HearthstoneGame.prototype, {
         const actor = isEnemy ? this.enemy : this.player;
         const card = actor.hand[index];
         const success = actor.playCard(index);
-        
+
         if (success) {
             if (success.spellCast) {
                 const spell = success.spell;

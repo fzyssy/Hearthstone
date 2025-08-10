@@ -72,43 +72,32 @@
     <main class="container mx-auto px-2 py-3 flex gap-3">
         <aside class="w-[280px]">
             <div class="bg-gradient-to-br from-black/70 to-primary/80 rounded-xl p-3 h-full min-h-[400px] max-h-[calc(100vh-60px)] overflow-y-auto text-base shadow-xl border border-secondary"
-                id="game-log" style="font-size: 1rem; line-height: 1.5;">
+                id="game-log" style="font-size: 1rem; line-height: 1.5; max-height: calc(80vh - 60px);">
                 <p class="text-gray-300">游戏日志将显示在这里...</p>
             </div>
         </aside>
 
-        <section class="flex-1 border-l border-white/20 pl-3">
+    <section class="flex-[2.2] border-l border-white/20 pl-5">
             <!-- 对手手牌区 -->
             <div id="enemy-hand" class="flex flex-wrap gap-2 min-h-[90px] justify-center mb-2">
                 <div class="text-center text-gray-400 w-full py-3">无手牌</div>
             </div>
 
-            <!-- 对手英雄区 -->
+            <!-- 对手英雄区（只保留头像、技能按钮、血量、护甲） -->
             <div class="enemy-hero-area flex items-center mb-2 gap-3 justify-center">
                 <div class="flex flex-col items-center">
-                    <div
-                        class="enemy-hero-avatar bg-enemy rounded-full border-2 border-secondary w-20 h-20 flex items-center justify-center shadow-lg relative mx-auto">
+                    <div class="enemy-hero-avatar bg-enemy rounded-full border-2 border-secondary w-20 h-20 flex items-center justify-center shadow-lg relative mx-auto">
                         <i class="fa fa-user-secret text-4xl"></i>
                     </div>
                 </div>
                 <div class="flex flex-row items-center gap-3 ml-2">
-                    <button id="enemy-hero-power"
-                        class="bg-green-700 hover:bg-green-800 text-white font-bold w-10 h-10 rounded-full shadow flex items-center justify-center text-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                        disabled title="猎人技能：2法力，对方英雄2伤害">
+                    <button id="enemy-hero-power" class="bg-green-700 hover:bg-green-800 text-white font-bold w-10 h-10 rounded-full shadow flex items-center justify-center text-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled title="猎人技能：2法力，对方英雄2伤害">
                         <i class="fa fa-crosshairs"></i>
                     </button>
                     <div class="flex items-center gap-2 text-lg font-bold">
                         <i class="fa fa-heart text-red-500 mr-1"></i>
                         <span id="enemy-health">30</span>
-                    </div>
-                    <div class="flex items-center gap-1 text-base">
-                        <i class="fa fa-bolt text-yellow-400 mr-1"></i>
-                        <span id="enemy-mana">0</span>/<span id="enemy-max-mana">0</span>
-                    </div>
-                    <div class="flex items-center gap-3 text-xs opacity-80 ml-4">
-                        <span>抽牌堆:<span id="enemy-deck-count">10</span></span>
-                        <span>疲劳值:<span id="enemy-fatigue">0</span></span>
-                        <span>弃牌堆:<span id="enemy-graveyard-count">0</span></span>
+                        <span id="enemy-armor" class="ml-2 flex items-center gap-1 text-base"><i class="fa fa-shield text-blue-400"></i><span>0</span></span>
                     </div>
                 </div>
             </div>
@@ -118,47 +107,34 @@
                 <div class="text-center text-gray-400 w-full py-2">无随从</div>
             </div>
 
-            <!-- 回合结束按钮 -->
-            <div class="my-2 h-1 border-t border-white/20 flex items-center justify-between">
-                <div></div>
-                <button id="end-turn"
-                    class="bg-secondary hover:bg-secondary/80 text-primary font-bold py-2 px-5 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-secondary ml-2 text-base"
-                    disabled>
-                    结束回合 <i class="fa fa-arrow-right ml-1"></i>
-                </button>
+            <!-- 中间分割线 -->
+            <div class="w-full flex items-center justify-center my-2">
+                <div class="h-1 w-2/3 bg-gradient-to-r from-transparent via-secondary to-transparent rounded-full opacity-60"></div>
             </div>
+
+            <!-- 回合结束按钮 -->
+            <!-- 回合结束按钮已移至右侧信息栏 -->
 
             <!-- 玩家随从区 -->
             <div id="player-minions" class="flex flex-wrap gap-2 min-h-[85px] justify-center mb-3 mt-2">
                 <div class="text-center text-gray-400 w-full py-2">无随从</div>
             </div>
 
-            <!-- 玩家英雄区 -->
+            <!-- 玩家英雄区（只保留头像、技能按钮、血量、护甲） -->
             <div class="player-hero-area flex items-center mt-4 gap-3 justify-center">
                 <div class="flex flex-col items-center">
-                    <div
-                        class="player-hero-avatar bg-player rounded-full border-2 border-secondary w-20 h-20 flex items-center justify-center shadow-lg relative mx-auto">
+                    <div class="player-hero-avatar bg-player rounded-full border-2 border-secondary w-20 h-20 flex items-center justify-center shadow-lg relative mx-auto">
                         <i class="fa fa-user text-4xl"></i>
                     </div>
                 </div>
                 <div class="flex flex-row items-center gap-3 ml-2">
-                    <button id="player-hero-power"
-                        class="bg-blue-600 hover:bg-blue-700 text-white font-bold w-10 h-10 rounded-full shadow flex items-center justify-center text-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                        disabled title="法师技能：2法力，指定目标1伤害">
+                    <button id="player-hero-power" class="bg-blue-600 hover:bg-blue-700 text-white font-bold w-10 h-10 rounded-full shadow flex items-center justify-center text-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled title="法师技能：2法力，指定目标1伤害">
                         <i class="fa fa-magic"></i>
                     </button>
                     <div class="flex items-center gap-2 text-lg font-bold">
                         <i class="fa fa-heart text-red-500 mr-1"></i>
                         <span id="player-health">30</span>
-                    </div>
-                    <div class="flex items-center gap-1 text-base">
-                        <i class="fa fa-bolt text-yellow-400 mr-1"></i>
-                        <span id="player-mana">0</span>/<span id="player-max-mana">0</span>
-                    </div>
-                    <div class="flex items-center gap-3 text-xs opacity-80 ml-4">
-                        <span>抽牌堆:<span id="player-deck-count">10</span></span>
-                        <span>疲劳值:<span id="player-fatigue">0</span></span>
-                        <span>弃牌堆:<span id="player-graveyard-count">0</span></span>
+                        <span id="player-armor" class="ml-2 flex items-center gap-1 text-base"><i class="fa fa-shield text-blue-400"></i><span>0</span></span>
                     </div>
                 </div>
             </div>
@@ -167,6 +143,51 @@
             <div id="player-hand" class="flex flex-wrap gap-2 min-h-[90px] justify-center mt-2">
                 <div class="text-center text-gray-400 w-full py-3">无手牌</div>
             </div>
+        </section>
+
+        <!-- 右侧信息栏：上下对齐，玩家信息靠下 -->
+    <aside class="info-panel border-l border-white/20 pl-3 flex flex-col justify-between" style="height: 100%;">
+            <!-- 顶部对手信息 -->
+            <div class="flex flex-col gap-2 mt-8">
+                <div class="flex items-center gap-2 text-base font-bold">
+                    <i class="fa fa-gavel text-yellow-400"></i>
+                    <span id="enemy-attack">0</span>
+                </div>
+                <div class="flex items-center gap-2 text-base font-bold">
+                    <i class="fa fa-bolt text-yellow-400"></i>
+                    <span id="enemy-mana">0</span>/<span id="enemy-max-mana">0</span>
+                </div>
+                <div class="flex flex-col gap-1 text-xs opacity-80 mt-2">
+                    <span>抽牌堆:<span id="enemy-deck-count">10</span></span>
+                    <span>疲劳值:<span id="enemy-fatigue">0</span></span>
+                    <span>弃牌堆:<span id="enemy-graveyard-count">0</span></span>
+                </div>
+            </div>
+            <!-- 中间居中结束回合按钮 -->
+            <div class="w-full flex items-center justify-center my-24">
+                <button id="end-turn"
+                    class="bg-secondary hover:bg-secondary/80 text-primary font-bold py-2 px-5 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-secondary text-base shadow-lg w-2/3 min-w-[150px]"
+                    disabled>
+                    结束回合 <i class="fa fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+            <!-- 底部玩家信息 -->
+            <div class="flex flex-col gap-2 mb-50">
+                <div class="flex items-center gap-2 text-base font-bold">
+                    <i class="fa fa-gavel text-yellow-400"></i>
+                    <span id="player-attack">0</span>
+                </div>
+                <div class="flex items-center gap-2 text-base font-bold">
+                    <i class="fa fa-bolt text-yellow-400"></i>
+                    <span id="player-mana">0</span>/<span id="player-max-mana">0</span>
+                </div>
+                <div class="flex flex-col gap-1 text-xs opacity-80 mt-2">
+                    <span>抽牌堆:<span id="player-deck-count">10</span></span>
+                    <span>疲劳值:<span id="player-fatigue">0</span></span>
+                    <span>弃牌堆:<span id="player-graveyard-count">0</span></span>
+                </div>
+            </div>
+        </aside>
         </section>
     </main>
 

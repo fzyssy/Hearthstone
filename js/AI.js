@@ -12,13 +12,13 @@ class HearthstoneAI {
             return;
         }
 
-    this.game.isAITurn = true;
-    this.game.updateGameUI(); // 立即更新UI显示AI行动中状态
-    await this.sleep(this.game.aiThinkingTime);
-    // 执行AI决策流程
-    await this.playTurn();
-    this.game.isAITurn = false;
-    this.game.updateGameUI(); // AI行动结束后立即更新UI
+        this.game.isAITurn = true;
+        this.game.updateGameUI(); // 立即更新UI显示AI行动中状态
+        await this.sleep(this.game.aiThinkingTime);
+        // 执行AI决策流程
+        await this.playTurn();
+        this.game.isAITurn = false;
+        this.game.updateGameUI(); // AI行动结束后立即更新UI
     }
 
     // AI回合决策主流程 - 动态决策系统
@@ -92,19 +92,19 @@ class HearthstoneAI {
             heroSkill: [],
             attacks: []
         };
-        
+
         // 扫描出牌操作
         this.scanPlayCardActions(actions.playCard);
-        
+
         // 扫描英雄技能操作
         this.scanHeroSkillActions(actions.heroSkill);
-        
+
         // 扫描攻击操作
         this.scanAttackActions(actions.attacks);
-        
+
         return actions;
     }
-    
+
     // 扫描出牌操作
     scanPlayCardActions(playCardActions) {
         this.aiPlayer.hand.forEach((card, index) => {
@@ -146,7 +146,7 @@ class HearthstoneAI {
             }
         });
     }
-    
+
     // 扫描英雄技能操作
     scanHeroSkillActions(heroSkillActions) {
         if (this.aiPlayer.manaCrystals >= 2 && !this.game.heroPowerUsed.enemy) {
@@ -166,7 +166,7 @@ class HearthstoneAI {
             }
         }
     }
-    
+
     // 扫描攻击操作
     scanAttackActions(attackActions) {
         // 英雄攻击
@@ -199,7 +199,7 @@ class HearthstoneAI {
             }
         });
     }
-    
+
     // 执行出牌阶段 - 按照高费到低费，智能选择
     async executePlayCardPhase(playCardActions) {
         if (playCardActions.length === 0) return 0;
@@ -239,7 +239,7 @@ class HearthstoneAI {
         }
         return executedActions.length;
     }
-    
+
     // 执行英雄技能阶段
     async executeHeroSkillPhase(heroSkillActions) {
         if (heroSkillActions.length === 0) return 0;
@@ -260,7 +260,7 @@ class HearthstoneAI {
         }
         return 0; // 没有使用技能
     }
-    
+
     // 执行攻击阶段
     async executeAttackPhase(initialAttackActions) {
         // 重新扫描所有可以攻击的随从（包括刚召唤的冲锋/突袭随从）
@@ -292,22 +292,22 @@ class HearthstoneAI {
     }
 
     // 智能判断函数集合
-    
+
     // 检查是否有斩杀机会
     checkLethalOpportunity() {
         let totalDamage = 0;
-        
+
         // 计算场上所有能攻击的单位总伤害
         if (this.aiPlayer.heroCanAttack && !this.aiPlayer.heroAttacked && this.aiPlayer.heroAttack > 0) {
             totalDamage += this.aiPlayer.heroAttack;
         }
-        
+
         this.aiPlayer.board.forEach(minion => {
             if (!minion.hasAttacked && minion.attack > 0) {
                 totalDamage += minion.attack;
             }
         });
-        
+
         // 计算手牌中直伤法术的伤害
         this.aiPlayer.hand.forEach(card => {
             if (card instanceof Spell && card.cost <= this.aiPlayer.manaCrystals) {
@@ -317,68 +317,68 @@ class HearthstoneAI {
                 else if (card.name.includes("熔岩爆裂")) totalDamage += 5;
             }
         });
-        
+
         // 加上英雄技能伤害
         if (!this.game.heroPowerUsed.enemy && this.aiPlayer.manaCrystals >= 2) {
             const skillKey = this.aiPlayer.heroClass.key;
             if (skillKey === 'mage') totalDamage += 1;
             else if (skillKey === 'hunter') totalDamage += 2;
         }
-        
+
         return totalDamage >= this.humanPlayer.health;
     }
-    
+
     // 判断是否为斩杀行动
     isLethalAction(action) {
         if (action.type === 'play_spell') {
             const spell = action.card;
             if (action.target === this.humanPlayer) {
                 // 直伤法术对英雄
-                return spell.name.includes("火球术") || spell.name.includes("闪电箭") || 
-                       spell.name.includes("奥术飞弹") || spell.name.includes("暗影箭") ||
-                       spell.name.includes("熔岩爆裂");
+                return spell.name.includes("火球术") || spell.name.includes("闪电箭") ||
+                    spell.name.includes("奥术飞弹") || spell.name.includes("暗影箭") ||
+                    spell.name.includes("熔岩爆裂");
             }
         }
         return action.type === 'hero_attack' || action.type === 'minion_attack';
     }
-    
+
     // 判断是否为buff法术
     isBuffSpell(action) {
         if (action.type !== 'play_spell') return false;
-        
+
         const spellName = action.card.name;
         // 专门针对"玉莲印记"和其他随从buff法术
-        return spellName.includes("玉莲印记") || spellName.includes("祝福") || 
-               spellName.includes("强化") || spellName.includes("增益") ||
-               spellName.includes("加血") || spellName.includes("加攻") ||
-               (action.card.targetType === "all_minions" && (action.card.buffAttack > 0 || action.card.buffHealth > 0));
+        return spellName.includes("玉莲印记") || spellName.includes("祝福") ||
+            spellName.includes("强化") || spellName.includes("增益") ||
+            spellName.includes("加血") || spellName.includes("加攻") ||
+            (action.card.targetType === "all_minions" && (action.card.buffAttack > 0 || action.card.buffHealth > 0));
     }
-    
+
     // 判断是否应该延后使用buff法术 - 不再使用这个方法，改为在攻击前使用
     shouldDelayBuffSpell(action) {
         // 如果没有随从在场，延后使用
         if (this.aiPlayer.board.length === 0) {
             return true;
         }
-        
+
         // 如果还有随从牌可以出，延后使用
-        const hasMoreMinions = this.aiPlayer.hand.some(card => 
+        const hasMoreMinions = this.aiPlayer.hand.some(card =>
             card instanceof Minion && card.cost <= this.aiPlayer.manaCrystals - action.cost
         );
-        
+
         return hasMoreMinions;
     }
-    
+
     // 判断是否应该执行该行动
     shouldExecuteAction(action) {
         // 火球术不要打自己的目标
         if (action.type === 'play_spell' && action.card.name.includes("火球术")) {
-            if (action.target === this.aiPlayer || 
+            if (action.target === this.aiPlayer ||
                 (action.target instanceof Minion && this.aiPlayer.board.includes(action.target))) {
                 return false;
             }
         }
-        
+
         // 治疗法术智能使用
         if (action.type === 'play_spell' && action.card.name.includes("治疗")) {
             if (action.target === this.humanPlayer) {
@@ -388,22 +388,22 @@ class HearthstoneAI {
                 return false; // 血量接近满血时不浪费治疗
             }
         }
-        
+
         return true;
     }
-    
+
     // 判断是否应该使用英雄技能
     shouldUseHeroSkill(action) {
         const skillKey = this.aiPlayer.heroClass.key;
-        
+
         // 法师技能：不要打自己的目标
         if (skillKey === 'mage') {
-            if (action.target === this.aiPlayer || 
+            if (action.target === this.aiPlayer ||
                 (action.target instanceof Minion && this.aiPlayer.board.includes(action.target))) {
                 return false;
             }
         }
-        
+
         // 牧师技能：不要治疗敌人满血目标
         if (skillKey === 'priest') {
             if (action.target === this.humanPlayer && this.humanPlayer.health >= this.humanPlayer.maxHealth) {
@@ -413,52 +413,52 @@ class HearthstoneAI {
                 return false; // 不治疗敌方随从
             }
         }
-        
+
         // 如果剩余法力值不多，优先留给出牌
         if (this.aiPlayer.manaCrystals <= 3) {
-            const hasPlayableCards = this.aiPlayer.hand.some(card => 
+            const hasPlayableCards = this.aiPlayer.hand.some(card =>
                 card.cost <= this.aiPlayer.manaCrystals - 2
             );
             if (hasPlayableCards) {
                 return false;
             }
         }
-        
+
         return true;
     }
-    
+
     // 验证攻击是否有效
     isValidAttack(action) {
         if (action.type === 'hero_attack') {
-            return this.aiPlayer.heroCanAttack && !this.aiPlayer.heroAttacked && 
-                   this.aiPlayer.heroAttack > 0;
+            return this.aiPlayer.heroCanAttack && !this.aiPlayer.heroAttacked &&
+                this.aiPlayer.heroAttack > 0;
         } else if (action.type === 'minion_attack') {
             const minion = action.minion;
             return minion && !minion.hasAttacked && minion.attack > 0 &&
-                   this.aiPlayer.board.includes(minion);
+                this.aiPlayer.board.includes(minion);
         }
         return false;
     }
-    
+
     // 获取攻击前应该使用的buff法术
     getBuffSpellsBeforeAttack() {
         const buffSpells = [];
-        
+
         // 只有当场上有随从时才考虑使用buff法术
         if (this.aiPlayer.board.length === 0) {
             return buffSpells;
         }
-        
+
         // 检查是否有可攻击的随从
-        const hasAttackableMinions = this.aiPlayer.board.some(minion => 
+        const hasAttackableMinions = this.aiPlayer.board.some(minion =>
             minion.canAttack && !minion.attackedThisTurn
         );
-        
+
         // 只有在有可攻击随从的情况下才使用buff法术
         if (!hasAttackableMinions) {
             return buffSpells;
         }
-        
+
         // 扫描手牌中的buff法术
         this.aiPlayer.hand.forEach((card, index) => {
             if (card instanceof Spell && this.isBuffSpell({ type: 'play_spell', card: card })) {
@@ -482,25 +482,25 @@ class HearthstoneAI {
                 }
             }
         });
-        
+
         return buffSpells;
     }
-    
+
     // 执行攻击前的buff法术
     async executeBuffSpellsBeforeAttack(buffSpells) {
         if (buffSpells.length === 0) return 0;
-        
+
         this.game.logMessage("AI在攻击前使用增益法术...");
-        
+
         // 按优先级排序buff法术
         buffSpells.sort((a, b) => b.priority - a.priority);
-        
+
         let executedCount = 0;
         for (const action of buffSpells) {
             if (this.game.gameOver || this.game.currentPlayer !== this.aiPlayer) {
                 break;
             }
-            
+
             if (this.aiPlayer.manaCrystals >= action.cost) {
                 // 再次检查是否应该执行该action
                 if (this.shouldExecuteAction(action)) {
@@ -510,49 +510,49 @@ class HearthstoneAI {
                 }
             }
         }
-        
+
         return executedCount;
     }
-    
+
     // 执行buff法术
     async executeBuffSpells(buffSpells) {
         if (buffSpells.length === 0) return 0;
-        
+
         // 只有当场上有随从时才使用buff
         if (this.aiPlayer.board.length > 0) {
             this.game.logMessage("AI使用增益法术...");
-            
+
             // 按优先级排序buff法术
             buffSpells.sort((a, b) => b.priority - a.priority);
-            
+
             let executedCount = 0;
             for (const action of buffSpells) {
                 if (this.game.gameOver || this.game.currentPlayer !== this.aiPlayer) {
                     break;
                 }
-                
+
                 if (this.aiPlayer.manaCrystals >= action.cost) {
                     await this.executeAction(action);
                     executedCount++;
                     await this.sleep(800);
                 }
             }
-            
+
             return executedCount;
         }
-        
+
         return 0;
     }
 
     // 重新设计的优先级计算函数
-    
+
     // 计算随从出牌优先级
     calculateMinionPlayPriority(card) {
         let priority = 0;
-        
+
         // 基础优先级：高费用随从优先级更高
         priority = card.cost * 20 + card.attack * 5 + card.health * 3;
-        
+
         // 特殊能力加成
         if (card.taunt) priority += 60; // 嘲讽在控场时很重要
         if (card.charge) priority += 80; // 冲锋可以立即攻击
@@ -560,29 +560,29 @@ class HearthstoneAI {
         if (card.divineShield) priority += 40;
         if (card.lifesteal) priority += 30;
         if (card.windfury) priority += 70;
-        
+
         // 场面状况调整
         if (this.aiPlayer.board.length === 0) {
             priority += 100; // 空场时随从非常重要
         } else if (this.aiPlayer.board.length <= 2) {
             priority += 50; // 随从数量少时需要补充
         }
-        
+
         // 对抗性调整
         if (this.humanPlayer.board.length >= 3 && card.taunt) {
             priority += 80; // 对手随从多时嘲讽更重要
         }
-        
+
         return priority;
     }
-    
+
     // 计算武器装备优先级
     calculateWeaponPlayPriority(card) {
         let priority = 0;
-        
+
         // 基础优先级
         priority = card.attack * 25 + card.durability * 15;
-        
+
         // 如果没有武器，大幅提高优先级
         if (!this.aiPlayer.weapon) {
             priority += 150;
@@ -595,26 +595,26 @@ class HearthstoneAI {
                 priority -= 50; // 新武器不如当前武器，降低优先级
             }
         }
-        
+
         return priority;
     }
-    
+
     // 计算法术使用优先级
     calculateSpellPlayPriority(card, target) {
         let priority = 0;
         const spellName = card.name;
-        
+
         // 直伤法术
-        if (spellName.includes("火球术") || spellName.includes("闪电箭") || 
+        if (spellName.includes("火球术") || spellName.includes("闪电箭") ||
             spellName.includes("奥术飞弹") || spellName.includes("暗影箭") ||
             spellName.includes("熔岩爆裂")) {
-            
+
             let damage = 0;
             if (spellName.includes("火球术")) damage = 6;
             else if (spellName.includes("闪电箭") || spellName.includes("奥术飞弹")) damage = 3;
             else if (spellName.includes("暗影箭")) damage = 4;
             else if (spellName.includes("熔岩爆裂")) damage = 5;
-            
+
             if (target === this.humanPlayer) {
                 priority = 200 + damage * 10;
                 // 斩杀机会
@@ -656,7 +656,7 @@ class HearthstoneAI {
             }
         }
         // Buff法术
-        else if (this.isBuffSpell({type: 'play_spell', card: card})) {
+        else if (this.isBuffSpell({ type: 'play_spell', card: card })) {
             if (target instanceof Minion && this.aiPlayer.board.includes(target)) {
                 priority = 50 + target.attack * 8; // 给攻击力高的随从buff更有价值
             }
@@ -674,15 +674,15 @@ class HearthstoneAI {
         else {
             priority = 80;
         }
-        
+
         return priority;
     }
-    
+
     // 计算英雄技能优先级
     calculateHeroSkillPriority(target) {
         let priority = 0;
         const skillKey = this.aiPlayer.heroClass.key;
-        
+
         if (skillKey === 'mage') {
             if (target === this.humanPlayer) {
                 priority = 50;
@@ -719,24 +719,24 @@ class HearthstoneAI {
             // 其他职业
             priority = 40;
         }
-        
+
         return priority;
     }
-    
+
     // 计算攻击优先级
     calculateAttackPriority(attacker, target) {
         let priority = 0;
         const damage = attacker ? attacker.attack : this.aiPlayer.heroAttack;
-        
+
         if (target === this.humanPlayer) {
             // 攻击敌方英雄
             priority = 150 + damage * 10;
-            
+
             // 斩杀机会最高优先级
             if (target.health <= damage) {
                 priority += 2000;
             }
-            
+
             // 低血量时提高优先级
             if (target.health <= 8) {
                 priority += 150;
@@ -746,7 +746,7 @@ class HearthstoneAI {
             if (target.health <= damage) {
                 // 能直接消灭
                 priority = 400 + target.attack * 15 + target.health * 8;
-                
+
                 // 威胁性随从优先清理
                 if (target.taunt) priority += 200;
                 if (target.charge) priority += 150;
@@ -756,12 +756,12 @@ class HearthstoneAI {
             } else {
                 // 不能直接消灭，考虑交换价值
                 priority = 100 + Math.min(damage, target.health) * 8;
-                
+
                 // 嘲讽必须攻击
                 if (target.taunt) {
                     priority += 300;
                 }
-                
+
                 // 评估交换是否有利
                 if (attacker) {
                     if (target.attack >= attacker.health) {
@@ -778,7 +778,7 @@ class HearthstoneAI {
                 }
             }
         }
-        
+
         return priority;
     }
 
@@ -822,10 +822,10 @@ class HearthstoneAI {
             // 获取攻击者和目标元素
             const attackerElement = document.querySelector('.enemy-hero-avatar');
             let targetElement;
-            
+
             if (action.target === this.humanPlayer) {
                 targetElement = document.querySelector('.player-hero-avatar');
-                
+
                 // 执行攻击逻辑
                 const result = this.aiPlayer.attackWithHero(this.humanPlayer);
                 if (result.success) {
@@ -833,7 +833,7 @@ class HearthstoneAI {
                     this.game.playAttackAnimation(attackerElement, targetElement, () => {
                         // 播放受击动画
                         this.game.playHitAnimation(targetElement);
-                        
+
                         this.game.logMessage(`AI英雄攻击了你，造成${result.damageDealt}点伤害`);
                         this.game.updateGameUI();
                         this.game.checkGameOver();
@@ -848,24 +848,24 @@ class HearthstoneAI {
                 if (targetIndex !== -1) {
                     const targetBoard = document.querySelector('#player-minions');
                     targetElement = targetBoard.children[targetIndex];
-                    
+
                     const result = this.aiPlayer.attackWithHero(action.target);
                     if (result.success) {
                         // 播放攻击动画
                         this.game.playAttackAnimation(attackerElement, targetElement, () => {
                             // 播放受击动画
                             this.game.playHitAnimation(targetElement);
-                            
+
                             this.game.logMessage(`AI英雄攻击了你的${action.target.name}`);
-                            
+
                             let needsUIUpdate = true;
-                            
+
                             // 如果随从死亡，播放死亡动画
                             if (result.targetDied) {
                                 const deadMinion = this.humanPlayer.board.splice(targetIndex, 1)[0];
                                 this.humanPlayer.graveyard.push(deadMinion);
                                 this.game.logMessage(`你的${action.target.name}被消灭了`);
-                                
+
                                 this.game.playDeathAnimation(targetElement, () => {
                                     if (needsUIUpdate) {
                                         this.game.updateGameUI();
@@ -878,7 +878,7 @@ class HearthstoneAI {
                                 needsUIUpdate = false;
                                 resolve();
                             }
-                            
+
                             // 如果AI英雄死亡（理论上不太可能，但为了完整性）
                             if (result.heroDied) {
                                 this.game.logMessage(`AI英雄死亡了`);
@@ -900,23 +900,23 @@ class HearthstoneAI {
         return new Promise((resolve) => {
             const attacker = action.minion;
             const target = action.target;
-            
+
             // 获取攻击者元素
             const attackerBoard = document.querySelector('#enemy-minions');
             const attackerElement = attackerBoard.children[action.minionIndex];
             let targetElement;
-            
+
             if (target === this.humanPlayer) {
                 // 攻击对方英雄
                 targetElement = document.querySelector('.player-hero-avatar');
-                
+
                 const result = this.aiPlayer.attackWithMinion(action.minionIndex, this.humanPlayer);
                 if (result.success) {
                     // 播放攻击动画
                     this.game.playAttackAnimation(attackerElement, targetElement, () => {
                         // 播放受击动画
                         this.game.playHitAnimation(targetElement);
-                        
+
                         this.game.logMessage(`AI的${attacker.name}攻击了你，造成${result.damageDealt}点伤害`);
                         this.game.updateGameUI();
                         this.game.checkGameOver();
@@ -931,20 +931,20 @@ class HearthstoneAI {
                 if (targetIndex !== -1) {
                     const targetBoard = document.querySelector('#player-minions');
                     targetElement = targetBoard.children[targetIndex];
-                    
+
                     const result = this.aiPlayer.attackWithMinion(action.minionIndex, target);
                     if (result.success) {
                         // 播放攻击动画
                         this.game.playAttackAnimation(attackerElement, targetElement, () => {
                             // 播放受击动画
                             this.game.playHitAnimation(targetElement);
-                            
+
                             this.game.logMessage(`AI的${attacker.name}攻击了你的${target.name}`);
-                            
+
                             let needsUIUpdate = true;
                             let animationsComplete = 0;
                             const totalAnimations = (result.targetDied ? 1 : 0) + (result.attackerDied ? 1 : 0);
-                            
+
                             const checkComplete = () => {
                                 animationsComplete++;
                                 if (animationsComplete >= totalAnimations || totalAnimations === 0) {
@@ -955,17 +955,17 @@ class HearthstoneAI {
                                     resolve();
                                 }
                             };
-                            
+
                             if (result.targetDied) {
                                 this.game.logMessage(`你的${target.name}被消灭了`);
                                 this.game.playDeathAnimation(targetElement, checkComplete);
                             }
-                            
+
                             if (result.attackerDied) {
                                 this.game.logMessage(`AI的${attacker.name}被消灭了`);
                                 this.game.playDeathAnimation(attackerElement, checkComplete);
                             }
-                            
+
                             if (totalAnimations === 0) {
                                 checkComplete();
                             }
@@ -991,7 +991,7 @@ class HearthstoneAI {
 
             const skillKey = this.aiPlayer.heroClass.key;
             const skillHandler = HERO_SKILL_HANDLERS[skillKey];
-            
+
             if (!skillHandler) {
                 resolve();
                 return;
@@ -1005,7 +1005,7 @@ class HearthstoneAI {
                 // 无需目标选择的技能，直接使用统一处理器
                 const heroElement = document.querySelector('.enemy-hero-avatar');
                 this.createHeroPowerEffect(skillKey, heroElement);
-                
+
                 setTimeout(() => {
                     skillHandler(this.game, this.aiPlayer, false);
                     resolve();
@@ -1013,12 +1013,12 @@ class HearthstoneAI {
             }
         });
     }
-    
+
     // 模拟目标技能选择
     simulateTargetSkill(skillKey, target, resolve) {
         const heroElement = document.querySelector('.enemy-hero-avatar');
         this.createHeroPowerEffect(skillKey, heroElement);
-        
+
         setTimeout(() => {
             if (skillKey === 'mage') {
                 // 模拟法师技能目标选择
@@ -1030,11 +1030,11 @@ class HearthstoneAI {
             resolve();
         }, 500);
     }
-    
+
     // 创建英雄技能特效
     createHeroPowerEffect(skillKey, targetElement) {
         if (!targetElement) return;
-        
+
         const effect = document.createElement('div');
         effect.style.position = 'absolute';
         effect.style.top = '50%';
@@ -1045,7 +1045,7 @@ class HearthstoneAI {
         effect.style.fontSize = '20px';
         effect.style.fontWeight = 'bold';
         effect.style.textShadow = '2px 2px 4px rgba(0,0,0,0.5)';
-        
+
         switch (skillKey) {
             case 'mage':
                 effect.innerHTML = '🔥';
@@ -1073,10 +1073,10 @@ class HearthstoneAI {
                 effect.className = 'battle-spark';
                 break;
         }
-        
+
         targetElement.style.position = 'relative';
         targetElement.appendChild(effect);
-        
+
         setTimeout(() => {
             if (effect.parentNode) {
                 effect.parentNode.removeChild(effect);
@@ -1097,23 +1097,23 @@ class HearthstoneAI {
             const result = this.game.playPlayerCard(action.cardIndex, true);
             if (result) {
                 this.game.logMessage(`AI召唤了${action.card.name}`);
-                
+
                 // 等待UI更新后添加动画
                 setTimeout(() => {
                     const enemyMinionsContainer = document.querySelector('#enemy-minions');
                     const newMinionElement = enemyMinionsContainer.lastElementChild;
-                    
+
                     if (newMinionElement) {
                         // 添加召唤动画
                         newMinionElement.classList.add('animate-play');
-                        
+
                         // 创建召唤特效
                         this.createSummonEffect(newMinionElement);
                     }
-                    
+
                     resolve();
                 }, 100);
-                
+
                 this.game.updateGameUI();
             } else {
                 resolve();
@@ -1134,13 +1134,13 @@ class HearthstoneAI {
             const result = this.game.playPlayerCard(action.cardIndex, true);
             if (result) {
                 this.game.logMessage(`AI装备了${action.card.name}`);
-                
+
                 // 为英雄添加装备特效
                 const heroElement = document.querySelector('.enemy-hero-avatar');
                 this.createWeaponEquipEffect(heroElement);
-                
+
                 this.game.updateGameUI();
-                
+
                 setTimeout(() => {
                     resolve();
                 }, 600);
@@ -1161,7 +1161,7 @@ class HearthstoneAI {
 
             const spell = action.card;
             const target = action.target;
-            
+
             // 直接调用游戏的统一法术系统
             if (spell.targetType === "any") {
                 // 需要目标选择的法术，模拟选择目标的过程
@@ -1173,18 +1173,18 @@ class HearthstoneAI {
             }
         });
     }
-    
+
     // 模拟法术目标选择过程
     simulateSpellTargetSelection(action, target, resolve) {
         const spell = action.card;
-        
+
         // 设置AI为当前施法者（模拟玩家选择法术后的状态）
-        this.game.selectedSpell = { 
-            spell: spell, 
-            caster: this.aiPlayer, 
-            cardIndex: action.cardIndex 
+        this.game.selectedSpell = {
+            spell: spell,
+            caster: this.aiPlayer,
+            cardIndex: action.cardIndex
         };
-        
+
         // 准备目标对象
         let spellTarget = null;
         if (target instanceof Minion) {
@@ -1197,10 +1197,10 @@ class HearthstoneAI {
         } else {
             spellTarget = { type: 'hero', player: target };
         }
-        
+
         // 直接调用统一的法术施放方法
         this.game.castSpellOnTarget(spellTarget);
-        
+
         // 延迟一下让特效播放完
         setTimeout(() => {
             resolve();
@@ -1211,16 +1211,16 @@ class HearthstoneAI {
     getValidAttackTargets(attacker, enemyPlayer) {
         const targets = [];
         const enemyTauntMinions = enemyPlayer.board.filter(m => m.taunt && !m.stealth && m.health > 0);
-        
+
         if (enemyTauntMinions.length > 0) {
             // 有嘲讽随从时只能攻击嘲讽随从
             return enemyTauntMinions;
         }
-        
+
         // 可攻击的随从（非潜行）
         const attackableMinions = enemyPlayer.board.filter(m => !m.stealth && m.health > 0);
         targets.push(...attackableMinions);
-        
+
         // 检查是否可以攻击英雄
         // 突袭随从在召唤回合不能攻击英雄
         if (attacker && attacker.rush && attacker.summonTurn === this.game.turnCount) {
@@ -1230,7 +1230,7 @@ class HearthstoneAI {
             // 冲锋随从或普通随从可以攻击英雄
             targets.push(enemyPlayer);
         }
-        
+
         return targets;
     }
 
@@ -1238,7 +1238,7 @@ class HearthstoneAI {
     getHeroPowerTargets() {
         const targets = [];
         const skillKey = this.aiPlayer.heroClass.key;
-        
+
         if (skillKey === 'mage') {
             // 法师：可以指定任何目标
             targets.push(this.humanPlayer);
@@ -1253,23 +1253,23 @@ class HearthstoneAI {
             targets.push(this.aiPlayer);
             targets.push(...this.humanPlayer.board.filter(m => m.health > 0));
             targets.push(...this.aiPlayer.board.filter(m => m.health > 0));
-        } else if (skillKey === 'paladin' || skillKey === 'warrior' || skillKey === 'warlock' || 
-                   skillKey === 'rogue' || skillKey === 'shaman' || skillKey === 'druid' || 
-                   skillKey === 'deathknight') {
+        } else if (skillKey === 'paladin' || skillKey === 'warrior' || skillKey === 'warlock' ||
+            skillKey === 'rogue' || skillKey === 'shaman' || skillKey === 'druid' ||
+            skillKey === 'deathknight') {
             // 这些职业不需要目标选择，返回null表示直接使用
             targets.push(null);
         } else {
             // 默认情况：攻击对方英雄
             targets.push(this.humanPlayer);
         }
-        
+
         return targets;
     }
 
     // 获取法术目标
     getSpellTargets(spell) {
         const targets = [];
-        
+
         if (spell.targetType === "any") {
             // 可以指定任何目标
             targets.push(this.humanPlayer);
@@ -1284,7 +1284,7 @@ class HearthstoneAI {
             // 群体法术或无需目标
             targets.push(null);
         }
-        
+
         return targets;
     }
 
@@ -1292,11 +1292,11 @@ class HearthstoneAI {
     sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
-    
+
     // 创建召唤特效
     createSummonEffect(targetElement) {
         if (!targetElement) return;
-        
+
         const effect = document.createElement('div');
         effect.innerHTML = '✨';
         effect.style.position = 'absolute';
@@ -1309,21 +1309,21 @@ class HearthstoneAI {
         effect.style.color = '#4A90E2';
         effect.style.textShadow = '2px 2px 4px rgba(0,0,0,0.5)';
         effect.className = 'battle-spark';
-        
+
         targetElement.style.position = 'relative';
         targetElement.appendChild(effect);
-        
+
         setTimeout(() => {
             if (effect.parentNode) {
                 effect.parentNode.removeChild(effect);
             }
         }, 600);
     }
-    
+
     // 创建武器装备特效
     createWeaponEquipEffect(targetElement) {
         if (!targetElement) return;
-        
+
         const effect = document.createElement('div');
         effect.innerHTML = '⚔️';
         effect.style.position = 'absolute';
@@ -1336,21 +1336,21 @@ class HearthstoneAI {
         effect.style.color = '#C9B037';
         effect.style.textShadow = '2px 2px 4px rgba(0,0,0,0.5)';
         effect.className = 'battle-spark';
-        
+
         targetElement.style.position = 'relative';
         targetElement.appendChild(effect);
-        
+
         setTimeout(() => {
             if (effect.parentNode) {
                 effect.parentNode.removeChild(effect);
             }
         }, 600);
     }
-    
+
     // 创建法术特效
     createSpellEffect(spell, targetElement) {
         if (!targetElement) return;
-        
+
         const effect = document.createElement('div');
         effect.style.position = 'absolute';
         effect.style.top = '50%';
@@ -1362,7 +1362,7 @@ class HearthstoneAI {
         effect.style.fontWeight = 'bold';
         effect.style.textShadow = '2px 2px 4px rgba(0,0,0,0.5)';
         effect.className = 'battle-spark';
-        
+
         // 根据法术类型设置不同的特效
         if (spell.name.includes('火球') || spell.name.includes('奥术飞弹')) {
             effect.innerHTML = '🔥';
@@ -1380,10 +1380,10 @@ class HearthstoneAI {
             effect.innerHTML = '✨';
             effect.style.color = '#8A2BE2';
         }
-        
+
         targetElement.style.position = 'relative';
         targetElement.appendChild(effect);
-        
+
         setTimeout(() => {
             if (effect.parentNode) {
                 effect.parentNode.removeChild(effect);

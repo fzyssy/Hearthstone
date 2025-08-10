@@ -1,3 +1,31 @@
+/* 右侧信息栏自定义样式 */
+.info-panel {
+    width: 180px;
+    min-width: 140px;
+    max-width: 200px;
+    font-size: 1.15rem;
+    text-align: center;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 600px;
+    min-height: 500px;
+}
+
+.info-panel .flex,
+.info-panel .flex-col,
+.info-panel .flex-row {
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100%;
+}
+
+.info-panel button,
+.info-panel span,
+.info-panel i {
+    font-size: 1.1em !important;
+}
 /* 自定义样式工具类 */
 @layer utilities {
     .text-shadow {
