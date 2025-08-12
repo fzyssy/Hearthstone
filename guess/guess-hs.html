@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <link rel="preconnect" href="https://art.hearthstonejson.com">
+    <meta charset="UTF-8">
+    <title>炉石猜卡牌游戏</title>
+    <style>
+        body {
+            font-family: '微软雅黑', Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 60px auto;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 32px 24px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2d3a4b;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin: 32px 0;
+        }
+
+        button {
+            padding: 12px 0;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            background: #4a90e2;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #357abd;
+        }
+
+        /* 游戏界面样式 */
+        #guess-input:focus {
+            border-color: #4a90e2;
+            box-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
+        }
+
+        .card-result {
+            transition: all 0.2s ease;
+        }
+
+        .card-result:hover {
+            background: #e3f2fd !important;
+            color: #1976d2;
+        }
+
+        /* 滚动条样式 */
+        #search-results::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #search-results::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        #search-results::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        #search-results::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="display:flex; flex-direction:row; align-items:flex-start; width:100vw; min-height:100vh;">
+        <!-- 左侧菜单 -->
+        <div class="container"
+            style="position:static; min-width:180px; max-width:220px; margin-top:10px; padding:10px 8px 8px 10px; box-shadow:none; background:transparent; z-index:20;">
+            <h1 style="font-size:20px; margin:0 0 16px 0; text-align:left; color:#2d3a4b;">炉石猜卡牌游戏</h1>
+            <div class="btn-group" style="gap:8px; margin:0;">
+                <button id="filter-expansion" style="font-size:13px; padding:7px 0;">筛选拓展包</button>
+                <button id="filter-rarity" style="font-size:13px; padding:7px 0;">筛选稀有度</button>
+                <button id="start-game" style="font-size:13px; padding:7px 0;">新游戏</button>
+                <button id="online-battle" style="font-size:13px; padding:7px 0; background:#ff9800;">联机对战</button>
+            </div>
+            <div id="preview-img-container" style="margin-top:18px; text-align:center;"></div>
+        </div>
+        <!-- 中间猜卡牌区域 -->
+        <div id="game-interface"
+            style="display:block; position:static; width:300px; min-height:500px; text-align:center; background:rgba(255,255,255,0.98); border-radius:12px; box-shadow:0 4px 24px rgba(0,0,0,0.15); padding:16px; box-sizing:border-box; margin:30px 16px 0 16px; flex-shrink:0; font-size:13px;">
+            <div style="width:100%; display:flex; flex-direction:column; align-items:center; margin-top:10px;">
+                <div style="width:100%; max-width:420px; display:flex; flex-direction:column; align-items:center;">
+                    <div style="margin-top:0; margin-bottom:8px; text-align:center;">
+                        <span style="font-size:15px; color:#2d3a4b; font-weight:bold;">猜猜这张卡牌的名字</span>
+                    </div>
+                    <div
+                        style="width:100%; display:flex; flex-direction:row; justify-content:center; align-items:center; margin-bottom:10px; gap:10px;">
+
+                        <button id="show-answer-btn"
+                            style="background:#e74c3c; font-size:13px; padding:7px 18px;">显示答案</button>
+                    </div>
+                    <div
+                        style="width:100%; display:flex; flex-direction:column; align-items:center; margin-bottom:8px;">
+                        <input type="text" id="guess-input" placeholder="输入卡牌名称..."
+                            style="width:90%; padding:10px; font-size:15px; border:2px solid #ddd; border-radius:6px; outline:none; margin-bottom:6px;">
+                    </div>
+                    <div id="search-results"
+                        style="width:100%; max-height:200px; overflow-y:auto; border:1px solid #eee; border-radius:6px; background:#fafafa; margin:0; text-align:left;">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 右侧卡牌信息表格 -->
+        <div id="card-table-panel"
+            style="position:static; width:950px; max-width:95vw; max-height:80vh; overflow:auto; background:#fff; box-shadow:0 2px 12px rgba(0,0,0,0.08); border-radius:10px; padding:18px 18px 18px 18px; z-index:15; overflow-x:auto; margin-top:30px;">
+            <table id="card-table" style="width:100%; border-collapse:collapse; font-size:14px;">
+                <thead>
+                    <tr style="background:#f5f7fa; color:#333;">
+                        <th style="padding:6px 8px; border-bottom:1px solid #e0e0e0;">卡牌名称</th>
+                        <th style="padding:6px 8px; border-bottom:1px solid #e0e0e0;">卡牌类型</th>
+                        <th style="padding:6px 8px; border-bottom:1px solid #e0e0e0;">稀有度</th>
+                        <th style="padding:6px 8px; border-bottom:1px solid #e0e0e0;">职业</th>
+                        <th style="padding:6px 8px; border-bottom:1px solid #e0e0e0;">费用</th>
+                        <th style="padding:6px 8px; border-bottom:1px solid #e0e0e0;">攻击</th>
+                        <th style="padding:6px 8px; border-bottom:1px solid #e0e0e0;">生命</th>
+                        <th style="padding:6px 8px; border-bottom:1px solid #e0e0e0;">关键词</th>
+                        <th style="padding:6px 8px; border-bottom:1px solid #e0e0e0;">种族</th>
+                        <th style="padding:6px 8px; border-bottom:1px solid #e0e0e0;">拓展包</th>
+                    </tr>
+                </thead>
+                <tbody id="card-table-body">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    <div id="answer-display"
+        style="display:none; position:fixed; left:0; right:0; top:0; bottom:0; margin:auto; width:300px; height:450px; text-align:center; z-index:10; background:rgba(255,255,255,0.98); border-radius:12px; box-shadow:0 4px 24px rgba(0,0,0,0.15); padding:20px; box-sizing:border-box;">
+        <h2 style="color:#27ae60; margin-top:10px;">答案揭晓</h2>
+        <img id="answer-img" src="" alt="答案卡牌"
+            style="max-width:220px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.15); margin:20px 0;">
+        <div id="answer-info" style="font-size:14px; color:#333; text-align:left; padding:0 10px;"></div>
+        <div style="margin-top:20px;">
+            <button onclick="startNewGame()" style="margin-right:10px; background:#27ae60;">再来一局</button>
+            <button onclick="backToMenu()" style="background:#95a5a6;">返回主菜单</button>
+        </div>
+    </div>
+    <script src="js/hs-translator.js"></script>
+    <script src="js/guess-hs.js"></script>
+</body>
+
+</html>
